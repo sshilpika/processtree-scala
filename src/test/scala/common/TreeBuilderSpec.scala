@@ -3,22 +3,19 @@ package common
 
 import org.scalatest.WordSpec
 
-trait TreeBuilderSpec extends WordSpec {
-
-  def treeBuilder: TreeBuilder
+trait TreeBuilderSpec extends WordSpec with TreeBuilder {
 
   "The tree builder" when {
     "given an empty list of processes" should {
       "build the correct process tree" in {
-        assert(treeBuilder.buildTree(Iterator.empty) == Map.empty)
+        assert(buildTree(Iterator.empty) == TreeFixtures.empty)
       }
     }
 
     "given a simple list of processes" should {
       "build the correct process tree" in {
         val processes = Iterator((1, 0, "cmd"))
-        val tree = Map(0 -> Seq((1, 0, "cmd")))
-        assert(treeBuilder.buildTree(processes) == tree)
+        assert(buildTree(processes) == TreeFixtures.simple)
       }
     }
 
@@ -27,12 +24,7 @@ trait TreeBuilderSpec extends WordSpec {
         val processes = Iterator(
           (1, 0, "cmd1"), (2, 1, "cmd2"), (3, 1, "cmd3"), (4, 3, "cmd4")
         )
-        val tree = Map(
-          0 -> Seq((1, 0, "cmd1")),
-          1 -> Seq((2, 1, "cmd2"), (3, 1, "cmd3")),
-          3 -> Seq((4, 3, "cmd4"))
-        )
-        assert(treeBuilder.buildTree(processes) == tree)
+        assert(buildTree(processes) == TreeFixtures.complex)
       }
     }
   }

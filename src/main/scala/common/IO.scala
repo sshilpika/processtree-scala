@@ -1,12 +1,11 @@
-package edu.luc.etl.osdi.processtree.scala
-package common
+package edu.luc.etl.osdi.processtree.scala.common
 
 import java.io.{BufferedWriter, OutputStreamWriter}
 
 import scala.collection.JavaConversions.enumerationAsScalaIterator
 import scala.math.max
 
-object IO {
+trait IO {
 
   def parseLine(header: String): (String) => (Int, Int, String) = {
     val cols = new java.util.StringTokenizer(header).toList
@@ -25,21 +24,27 @@ object IO {
 
   val IO_BUF_SIZE = 8192
 
-  val out = new BufferedWriter(new OutputStreamWriter(System.out), IO_BUF_SIZE)
+  implicit val stdout = new BufferedWriter(new OutputStreamWriter(System.out), IO_BUF_SIZE)
 
-  def printTree(processTree: Map[Int, Seq[(Int, Int, String)]]): Unit = {
-    printTree(processTree, 0, 0)
+  def printTree
+  (processTree: Map[Int, Seq[(Int, Int, String)]])
+  (implicit out: BufferedWriter)
+  : Unit = {
+    printTree(processTree, 0, 0)(out)
     out.flush()
   }
 
-  def printTree(processTree: Map[Int, Seq[(Int, Int, String)]], pid: Int, indent: Int): Unit = {
+  def printTree
+  (processTree: Map[Int, Seq[(Int, Int, String)]], pid: Int, indent: Int)
+  (implicit out: BufferedWriter)
+  : Unit = {
     for (children <- processTree.get(pid); (cpid, _, cmd) <- children) {
       for (_ <- 1 to indent) out.append(' ')
       out.append(cpid.toString)
       out.append(": ")
       out.append(cmd)
       out.newLine()
-      printTree(processTree, cpid, indent + 1)
+      printTree(processTree, cpid, indent + 1)(out)
     }
   }
 }
